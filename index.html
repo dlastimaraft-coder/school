@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -186,6 +187,12 @@
     </div>
 </div>
 
+<div id="ideaWrapper" style="width: 100%; display: flex; justify-content: center; margin-bottom: 50px;">
+    <button class="main-btn" id="btnIdea" onclick="window.location.href='https://t.me/Jaems_pavlow'" style="width: 90%; max-width: 500px; font-size: 13px; padding: 15px;">
+        Предложить идею по сайту
+    </button>
+</div>
+
 <script>
     // --- Данные переводов ---
     const translations = {
@@ -197,6 +204,7 @@
             btnMore: "Далее",
             btnHide: "Скрыть",
             btnSchedule: "Расписание звонков",
+            btnIdea: "Предложить идею по сайту",
             modalTitle: "Расписание звонков",
             theme: "🌓 Сменить тему",
             days: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница"]
@@ -204,11 +212,12 @@
         kz: {
             header: "КММ НМ",
             title: "Мектеп туралы",
-            mainDesc: "<strong>«Андықожа батыр ауылының негізгі мектебі» КММ: Дәстүр мен қазіргі заман</strong><br><br>«Андықожа батыр ауылының негізгі жалпы білім беретін мектебі» коммуналдық мемлекеттік мекемесі — бұл жай ғана білім беру орталығы емес, ауылдың мәдени және әлеуметтік өмірінің жүрегі. Біздің мектеп әрбір оқушының интеллектуалдық және шығармашылық әлеуетін ашуға мүмкіндік алатын қауіпсіз, қолдау көрсететін және инновациялық орта құруды өзінің басты міндеті деп санайды.",
+            mainDesc: "<strong>«Андықожа батыр ауылының негізгі мектебі» КММ: Дәстүр мен қазіргі заман</strong><br><br>«Андықожа батыр ауылының негізгі жалпы білім беретін мектебі» коммуналдық мемлекеттік мекемесі — бұл жай ғана білім беру орталығы емес, ауылдың мәдени және әлеуметтік өмірінің жүрегі. Біздің мектеп әрбір оқушының интеллектуалдық және шығармашылық әлеуетін ашуға мүмкіндік алатын қауіпсіз, қолдау көрсететін иә инновациялық орта құруды өзінің басты міндеті деп санайды.",
             hiddenDesc: "<strong>Білім беру миссиясы</strong><br><br>Біз терең академиялық білімді, патриотизмді және жоғары моральдық принциптерді бойына сіңірген үйлесімді дамыған тұлғаны қалыптастыруға ұмтыламыз. Андықожа батыр ауылының КММ НМ қабырғасында оқу процесі Қазақстан Республикасының мемлекеттік білім беру стандарттарына сәйкес ұйымдастырылған, сонымен қатар әр балаға жеке көзқарасқа ерекше назар аударылады. Біз ауыл мектебінің ұрпақтар сабақтастығының ерекше атмосферасына ие екенін түсінеміз және бұл артықшылықты жауапкершілік пен еңбекқорлыққа тәрбиелеу үшін қолданамыз.",
             btnMore: "Одан әрі",
             btnHide: "Жасыру",
             btnSchedule: "Қоңырау кестесі",
+            btnIdea: "Сайт бойынша идея ұсыну",
             modalTitle: "Қоңырау кестесі",
             theme: "🌓 Тақырыпты ауыстыру",
             days: ["Дүйсенбі", "Сейсенбі", "Сәрсенбі", "Бейсенбі", "Жұма"]
@@ -221,6 +230,7 @@
             btnMore: "Read more",
             btnHide: "Hide",
             btnSchedule: "Bell Schedule",
+            btnIdea: "Suggest a website idea",
             modalTitle: "Bell Schedule",
             theme: "🌓 Change theme",
             days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
@@ -303,7 +313,6 @@
         currentLang = lang;
         const t = translations[lang];
 
-        // Меняем весь текст на странице
         document.getElementById('headSchoolName').innerText = t.header;
         document.getElementById('mainTitle').innerText = t.title;
         document.getElementById('mainDesc').innerHTML = t.mainDesc;
@@ -311,55 +320,23 @@
         document.getElementById('btnSchedule').innerText = t.btnSchedule;
         document.getElementById('modalTitle').innerText = t.modalTitle;
         document.getElementById('themeBtn').innerText = t.theme;
+        
+        // Перевод новой кнопки
+        document.getElementById('btnIdea').innerText = t.btnIdea;
 
-        // Меняем кнопку "Далее/Скрыть" в зависимости от того, открыт текст или нет
         const textObj = document.getElementById("moreText");
         document.getElementById("readBtn").innerText = (textObj.style.display === "block") ? t.btnHide : t.btnMore;
 
-        // Меняем дни недели в расписании и перерисовываем его
         for (let i = 0; i < 5; i++) {
             daysList[i].name = t.days[i];
         }
         buildScheduleList();
 
-        // Закрываем меню после выбора
         toggleMenu();
     }
 </script>
 
 </body>
-<div id="ideaWrapper" style="width: 100%; display: flex; justify-content: center; margin-bottom: 50px;">
-    <button class="main-btn" id="btnIdea" onclick="window.location.href='https://t.me/Jaems_pavlow'" style="width: 90%; max-width: 500px; font-size: 13px; padding: 15px;">
-        Предложить идею по сайту
-    </button>
-</div>
+</html>
 
-<script>
-    (function() {
-        // Добавляем переводы для новой кнопки в твой основной словарь
-        if (typeof translations !== 'undefined') {
-            translations.ru.btnIdea = "Предложить идею по сайту";
-            translations.kz.btnIdea = "Сайт бойынша идея ұсыну";
-            translations.en.btnIdea = "Suggest a website idea";
-        }
-
-        // Сохраняем оригинальную функцию смены языка
-        const originalSetLang = window.setLang;
-
-        // Перезаписываем её, чтобы она обновляла и нашу новую кнопку
-        window.setLang = function(lang) {
-            // Вызываем старую логику (перевод текста, дней и т.д.)
-            if (typeof originalSetLang === 'function') {
-                originalSetLang(lang);
-            }
-            
-            // Переводим нашу кнопку
-            const ideaBtn = document.getElementById('btnIdea');
-            if (ideaBtn && translations[lang]) {
-                ideaBtn.innerText = translations[lang].btnIdea;
-            }
-        };
-    })();
-</script>
-
-          
+```
