@@ -1,0 +1,365 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>КГУ ООШ села Андыкожа батыр</title>
+    <style>
+        /* Темная тема (по умолчанию) */
+        :root {
+            --bg: #000000;
+            --card-bg: #161618;
+            --text: #ffffff;
+            --sub-text: #a0a0a0;
+            --shadow-out: 5px 5px 10px #080808, -2px -2px 6px #1e1e21;
+            --shadow-in: inset 3px 3px 6px #080808, inset -1px -1px 4px #1e1e21;
+        }
+
+        /* Светлая тема */
+        body.light-theme {
+            --bg: #e0e5ec;
+            --card-bg: #e0e5ec;
+            --text: #1a1a1a;
+            --sub-text: #555555;
+            --shadow-out: 9px 9px 16px rgb(163,177,198,0.6), -9px -9px 16px rgba(255,255,255, 0.5);
+            --shadow-in: inset 6px 6px 10px 0 rgba(163,177,198,0.7), inset -6px -6px 10px 0 rgba(255,255,255,0.8);
+        }
+
+        body {
+            background-color: var(--bg);
+            color: var(--text);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            transition: background-color 0.3s, color 0.3s;
+        }
+
+        header {
+            width: 100%; padding: 20px; display: flex;
+            justify-content: space-between; align-items: center;
+            box-sizing: border-box; position: relative; z-index: 10;
+        }
+
+        .school-name { font-size: 18px; font-weight: 700; text-transform: uppercase; }
+
+        .dots-btn {
+            width: 40px; height: 40px; border-radius: 10px;
+            background: var(--card-bg); box-shadow: var(--shadow-out);
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer; font-size: 20px; color: var(--text);
+        }
+
+        .lang-menu {
+            display: none; position: absolute; top: 70px; right: 20px;
+            background: var(--card-bg); border-radius: 12px;
+            box-shadow: var(--shadow-out); padding: 8px; z-index: 50; width: 160px;
+        }
+        .lang-menu button {
+            display: block; width: 100%; background: none; border: none;
+            color: var(--text); padding: 10px; text-align: left; cursor: pointer; border-radius: 8px;
+        }
+
+        .slider {
+            display: flex; overflow-x: auto; scroll-snap-type: x mandatory;
+            gap: 15px; width: 100%; padding: 10px 20px; box-sizing: border-box;
+            -webkit-overflow-scrolling: touch;
+        }
+        .slider::-webkit-scrollbar { display: none; }
+        .slider img {
+            scroll-snap-align: center; width: 85%; flex-shrink: 0;
+            border-radius: 16px; border: 4px solid rgba(150,150,150,0.1);
+            box-shadow: var(--shadow-out); transition: 0.3s;
+        }
+
+        /* Текстовый блок */
+        .description { padding: 20px; text-align: center; max-width: 600px; width: 90%; }
+        .description h1 { font-size: 22px; margin-bottom: 15px; color: var(--text); }
+        .description p { color: var(--sub-text); line-height: 1.5; font-size: 14px; margin-top: 0; text-align: left;}
+        
+        .more-text { display: none; margin-top: 10px; }
+        .read-more-btn {
+            background: var(--card-bg); color: var(--text); border: none;
+            padding: 8px 16px; border-radius: 8px; box-shadow: var(--shadow-out);
+            margin-top: 15px; cursor: pointer; font-size: 13px; font-weight: bold;
+        }
+        .read-more-btn:active { box-shadow: var(--shadow-in); }
+
+        /* Кнопка расписания */
+        .days-grid { width: 90%; max-width: 500px; margin-bottom: 40px; margin-top: 20px; }
+        .main-btn {
+            width: 100%; background: var(--card-bg); color: var(--text);
+            padding: 20px; border-radius: 16px; border: none;
+            box-shadow: var(--shadow-out); text-align: center;
+            font-weight: 600; text-transform: uppercase; letter-spacing: 1px;
+            cursor: pointer; transition: 0.2s ease; font-size: 15px;
+        }
+        .main-btn:active { box-shadow: var(--shadow-in); transform: scale(0.97); }
+
+        /* Окно расписания */
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.6); backdrop-filter: blur(5px);
+            display: none; justify-content: center; align-items: center; z-index: 100;
+        }
+        .overlay.show { display: flex; }
+        .modal {
+            background: var(--card-bg); border-radius: 24px;
+            width: 90%; max-width: 400px; padding: 20px;
+            box-shadow: var(--shadow-out); position: relative; max-height: 80vh; overflow-y: auto;
+        }
+        .close-btn {
+            position: absolute; top: 15px; right: 20px;
+            font-size: 28px; color: var(--sub-text); cursor: pointer; border: none; background: none;
+        }
+        .modal-header { font-size: 18px; font-weight: 700; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid var(--sub-text); color: var(--text); }
+
+        /* Аккордеон (Дни внутри расписания) */
+        .accordion-btn {
+            background: var(--card-bg); color: var(--text); cursor: pointer;
+            padding: 15px; width: 100%; text-align: left; border: none; outline: none;
+            transition: 0.3s; border-radius: 10px; margin-top: 10px; font-weight: bold;
+            box-shadow: var(--shadow-out);
+        }
+        .accordion-btn.active { box-shadow: var(--shadow-in); color: #3b82f6; }
+        .accordion-content {
+            padding: 0 15px; background: transparent; max-height: 0;
+            overflow: hidden; transition: max-height 0.3s ease-out;
+        }
+        .lesson-item {
+            display: flex; justify-content: space-between;
+            padding: 8px 0; border-bottom: 1px solid rgba(150,150,150,0.1);
+            font-size: 14px; color: var(--sub-text);
+        }
+        .lesson-num { font-weight: bold; color: var(--text); }
+        .lesson-time { font-family: monospace; }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="school-name" id="headSchoolName">КГУ ООШ</div>
+    <div class="dots-btn" onclick="toggleMenu()">⋮</div>
+    <div class="lang-menu" id="langMenu">
+        <button onclick="setLang('ru')">Русский</button>
+        <button onclick="setLang('kz')">Қазақша</button>
+        <button onclick="setLang('en')">English</button>
+        <hr style="border: 0.5px solid var(--sub-text); margin: 5px 0;">
+        <button id="themeBtn" onclick="toggleTheme()">🌓 Сменить тему</button>
+    </div>
+</header>
+
+<div class="slider">
+    <img src="school1.jpg" alt="Фото 1">
+    <img src="school2.jpg" alt="Фото 2">
+    <img src="school3.jpg" alt="Фото 3">
+</div>
+
+<div class="description">
+    <h1 id="mainTitle">О нашей школе</h1>
+    <p id="mainDesc">
+        <strong>КГУ «Основная общеобразовательная школа села Андыкожа батыр»: Традиции и современность</strong><br><br>
+        Коммунальное государственное учреждение «Основная общеобразовательная школа села Андыкожа батыр» — это не просто образовательный центр, а сердце культурной и социальной жизни села. Наша школа ставит своей приоритетной задачей создание безопасной, поддерживающей и инновационной среды, где каждый ученик получает возможность раскрыть свой интеллектуальный и творческий потенциал.
+    </p>
+    
+    <div class="more-text" id="moreText">
+        <p id="hiddenDesc">
+            <strong>Образовательная миссия</strong><br><br>
+            Мы стремимся к формированию гармонично развитой личности, сочетающей в себе глубокие академические знания, патриотизм и высокие моральные принципы. В стенах КГУ ООШ села Андыкожа батыр учебный процесс организован в соответствии с государственными стандартами образования Республики Казахстан, при этом особое внимание уделяется индивидуальному подходу к каждому ребенку. Мы понимаем, что сельская школа обладает уникальной атмосферой преемственности поколений, и используем это преимущество для воспитания ответственности и трудолюбия.
+        </p>
+    </div>
+    
+    <button class="read-more-btn" id="readBtn" onclick="toggleText()">Далее</button>
+</div>
+
+<div class="days-grid">
+    <button class="main-btn" id="btnSchedule" onclick="openSchedule()">Расписание звонков</button>
+</div>
+
+<div class="overlay" id="scheduleModal" onclick="closeSchedule(event)">
+    <div class="modal" onclick="event.stopPropagation()">
+        <button class="close-btn" onclick="document.getElementById('scheduleModal').classList.remove('show')">×</button>
+        <div class="modal-header" id="modalTitle">Расписание звонков</div>
+        <div id="accordionContainer"></div>
+    </div>
+</div>
+
+<script>
+    // --- Данные переводов ---
+    const translations = {
+        ru: {
+            header: "КГУ ООШ",
+            title: "О нашей школе",
+            mainDesc: "<strong>КГУ «Основная общеобразовательная школа села Андыкожа батыр»: Традиции и современность</strong><br><br>Коммунальное государственное учреждение «Основная общеобразовательная школа села Андыкожа батыр» — это не просто образовательный центр, а сердце культурной и социальной жизни села. Наша школа ставит своей приоритетной задачей создание безопасной, поддерживающей и инновационной среды, где каждый ученик получает возможность раскрыть свой интеллектуальный и творческий потенциал.",
+            hiddenDesc: "<strong>Образовательная миссия</strong><br><br>Мы стремимся к формированию гармонично развитой личности, сочетающей в себе глубокие академические знания, патриотизм и высокие моральные принципы. В стенах КГУ ООШ села Андыкожа батыр учебный процесс организован в соответствии с государственными стандартами образования Республики Казахстан, при этом особое внимание уделяется индивидуальному подходу к каждому ребенку. Мы понимаем, что сельская школа обладает уникальной атмосферой преемственности поколений, и используем это преимущество для воспитания ответственности и трудолюбия.",
+            btnMore: "Далее",
+            btnHide: "Скрыть",
+            btnSchedule: "Расписание звонков",
+            modalTitle: "Расписание звонков",
+            theme: "🌓 Сменить тему",
+            days: ["Понедельник", "Вторник", "Среда", "Четверг", "Пятница"]
+        },
+        kz: {
+            header: "КММ НМ",
+            title: "Мектеп туралы",
+            mainDesc: "<strong>«Андықожа батыр ауылының негізгі мектебі» КММ: Дәстүр мен қазіргі заман</strong><br><br>«Андықожа батыр ауылының негізгі жалпы білім беретін мектебі» коммуналдық мемлекеттік мекемесі — бұл жай ғана білім беру орталығы емес, ауылдың мәдени және әлеуметтік өмірінің жүрегі. Біздің мектеп әрбір оқушының интеллектуалдық және шығармашылық әлеуетін ашуға мүмкіндік алатын қауіпсіз, қолдау көрсететін және инновациялық орта құруды өзінің басты міндеті деп санайды.",
+            hiddenDesc: "<strong>Білім беру миссиясы</strong><br><br>Біз терең академиялық білімді, патриотизмді және жоғары моральдық принциптерді бойына сіңірген үйлесімді дамыған тұлғаны қалыптастыруға ұмтыламыз. Андықожа батыр ауылының КММ НМ қабырғасында оқу процесі Қазақстан Республикасының мемлекеттік білім беру стандарттарына сәйкес ұйымдастырылған, сонымен қатар әр балаға жеке көзқарасқа ерекше назар аударылады. Біз ауыл мектебінің ұрпақтар сабақтастығының ерекше атмосферасына ие екенін түсінеміз және бұл артықшылықты жауапкершілік пен еңбекқорлыққа тәрбиелеу үшін қолданамыз.",
+            btnMore: "Одан әрі",
+            btnHide: "Жасыру",
+            btnSchedule: "Қоңырау кестесі",
+            modalTitle: "Қоңырау кестесі",
+            theme: "🌓 Тақырыпты ауыстыру",
+            days: ["Дүйсенбі", "Сейсенбі", "Сәрсенбі", "Бейсенбі", "Жұма"]
+        },
+        en: {
+            header: "KGU OOSH",
+            title: "About Our School",
+            mainDesc: "<strong>KGU \"Basic comprehensive school of Andykozha batyr village\": Traditions and modernity</strong><br><br>The communal state institution \"Basic comprehensive school of Andykozha batyr village\" is not just an educational center, but the heart of the cultural and social life of the village. Our school considers its priority task to create a safe, supportive, and innovative environment where every student has the opportunity to unlock their intellectual and creative potential.",
+            hiddenDesc: "<strong>Educational Mission</strong><br><br>We strive for the formation of a harmoniously developed personality, combining deep academic knowledge, patriotism, and high moral principles. Within the walls of KGU OOSH of Andykozha batyr village, the educational process is organized in accordance with the state educational standards of the Republic of Kazakhstan, while special attention is paid to an individual approach to each child. We understand that a rural school has a unique atmosphere of continuity of generations, and we use this advantage to instil responsibility and diligence.",
+            btnMore: "Read more",
+            btnHide: "Hide",
+            btnSchedule: "Bell Schedule",
+            modalTitle: "Bell Schedule",
+            theme: "🌓 Change theme",
+            days: ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday"]
+        }
+    };
+
+    let currentLang = 'ru';
+
+    // Данные уроков
+    const mondaySchedule = ["8:30 - 9:15", "9:20 - 10:05", "10:10 - 10:55", "11:10 - 11:55", "12:00 - 12:45", "12:50 - 13:30", "13:35 - 14:20"];
+    const otherDaysSchedule = ["8:15 - 9:00", "9:05 - 9:50", "9:55 - 10:40", "11:00 - 11:45", "11:50 - 12:35", "12:40 - 13:25", "13:30 - 14:15"];
+
+    const daysList = [
+        { id: 'mon', name: 'Понедельник', times: mondaySchedule },
+        { id: 'tue', name: 'Вторник', times: otherDaysSchedule },
+        { id: 'wed', name: 'Среда', times: otherDaysSchedule },
+        { id: 'thu', name: 'Четверг', times: otherDaysSchedule },
+        { id: 'fri', name: 'Пятница', times: otherDaysSchedule }
+    ];
+
+    // Отрисовка дней-аккордеонов
+    function buildScheduleList() {
+        const container = document.getElementById('accordionContainer');
+        container.innerHTML = '';
+        daysList.forEach(day => {
+            const btn = document.createElement('button');
+            btn.className = 'accordion-btn';
+            btn.innerText = day.name;
+            
+            const content = document.createElement('div');
+            content.className = 'accordion-content';
+            
+            day.times.forEach((time, index) => {
+                content.innerHTML += `<div class="lesson-item"><span class="lesson-num">${index + 1})</span> <span class="lesson-time">${time}</span></div>`;
+            });
+
+            btn.addEventListener('click', function() {
+                this.classList.toggle('active');
+                if (content.style.maxHeight) { content.style.maxHeight = null; } 
+                else { content.style.maxHeight = content.scrollHeight + "px"; }
+            });
+            
+            container.appendChild(btn);
+            container.appendChild(content);
+        });
+    }
+
+    buildScheduleList();
+
+    // --- Функции интерфейса ---
+    function toggleMenu() {
+        const menu = document.getElementById('langMenu');
+        menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+    }
+
+    function toggleTheme() {
+        document.body.classList.toggle('light-theme');
+        toggleMenu();
+    }
+
+    function toggleText() {
+        const textObj = document.getElementById("moreText");
+        const btn = document.getElementById("readBtn");
+        if (textObj.style.display === "block") {
+            textObj.style.display = "none";
+            btn.innerText = translations[currentLang].btnMore;
+        } else {
+            textObj.style.display = "block";
+            btn.innerText = translations[currentLang].btnHide;
+        }
+    }
+
+    function openSchedule() { document.getElementById('scheduleModal').classList.add('show'); }
+    function closeSchedule(e) { 
+        if (e.target.id === 'scheduleModal') { document.getElementById('scheduleModal').classList.remove('show'); }
+    }
+
+    // --- РАБОЧИЙ ПЕРЕКЛЮЧАТЕЛЬ ЯЗЫКОВ ---
+    function setLang(lang) {
+        currentLang = lang;
+        const t = translations[lang];
+
+        // Меняем весь текст на странице
+        document.getElementById('headSchoolName').innerText = t.header;
+        document.getElementById('mainTitle').innerText = t.title;
+        document.getElementById('mainDesc').innerHTML = t.mainDesc;
+        document.getElementById('hiddenDesc').innerHTML = t.hiddenDesc;
+        document.getElementById('btnSchedule').innerText = t.btnSchedule;
+        document.getElementById('modalTitle').innerText = t.modalTitle;
+        document.getElementById('themeBtn').innerText = t.theme;
+
+        // Меняем кнопку "Далее/Скрыть" в зависимости от того, открыт текст или нет
+        const textObj = document.getElementById("moreText");
+        document.getElementById("readBtn").innerText = (textObj.style.display === "block") ? t.btnHide : t.btnMore;
+
+        // Меняем дни недели в расписании и перерисовываем его
+        for (let i = 0; i < 5; i++) {
+            daysList[i].name = t.days[i];
+        }
+        buildScheduleList();
+
+        // Закрываем меню после выбора
+        toggleMenu();
+    }
+</script>
+
+</body>
+<div id="ideaWrapper" style="width: 100%; display: flex; justify-content: center; margin-bottom: 50px;">
+    <button class="main-btn" id="btnIdea" onclick="window.location.href='https://t.me/Jaems_pavlow'" style="width: 90%; max-width: 500px; font-size: 13px; padding: 15px;">
+        Предложить идею по сайту
+    </button>
+</div>
+
+<script>
+    (function() {
+        // Добавляем переводы для новой кнопки в твой основной словарь
+        if (typeof translations !== 'undefined') {
+            translations.ru.btnIdea = "Предложить идею по сайту";
+            translations.kz.btnIdea = "Сайт бойынша идея ұсыну";
+            translations.en.btnIdea = "Suggest a website idea";
+        }
+
+        // Сохраняем оригинальную функцию смены языка
+        const originalSetLang = window.setLang;
+
+        // Перезаписываем её, чтобы она обновляла и нашу новую кнопку
+        window.setLang = function(lang) {
+            // Вызываем старую логику (перевод текста, дней и т.д.)
+            if (typeof originalSetLang === 'function') {
+                originalSetLang(lang);
+            }
+            
+            // Переводим нашу кнопку
+            const ideaBtn = document.getElementById('btnIdea');
+            if (ideaBtn && translations[lang]) {
+                ideaBtn.innerText = translations[lang].btnIdea;
+            }
+        };
+    })();
+</script>
+
+          
